@@ -24,7 +24,7 @@ app.use((0, cors_1.default)(config_1.default[env].corsOptions));
 app.use(express_1.default.json({ limit: "100kb" }));
 app.use(express_1.default.urlencoded({ extended: true, limit: "100kb" }));
 // Connect to MongoDB with Mongoose
-(0, database_1.default)(env);
+(0, database_1.default)(config_1.default[env].databaseURI);
 // Home Route
 app.get("/", (req, res) => {
     return res.status(200).json({ message: "Assalamu Alaikum World!" });

@@ -22,7 +22,7 @@ app.use(express.json({ limit: "100kb" }));
 app.use(express.urlencoded({ extended: true, limit: "100kb" }));
 
 // Connect to MongoDB with Mongoose
-connectToDatabase(env);
+connectToDatabase(config[env].databaseURI);
 
 // Home Route
 app.get("/", (req, res) => {

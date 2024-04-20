@@ -1,9 +1,6 @@
 import mongoose from "mongoose";
-import config from "./config";
 
-const connectToDatabase = async (env: string) => {
-  const databaseURL = config[env].databaseURI;
-
+const connectToDatabase = async (databaseURL: string) => {
   try {
     await mongoose.connect(databaseURL);
     console.log("Connected to MongoDB Database!");
