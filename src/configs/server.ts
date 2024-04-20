@@ -2,6 +2,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import "dotenv/config";
 import express from "express";
+import helmet from "helmet";
 import logger from "morgan";
 import errorMiddleware from "../middlewares/errorMiddleware";
 import verifyApiKeyHeader from "../middlewares/verifyApiKeyHeader";
@@ -14,6 +15,7 @@ const app = express();
 const env = process.env.NODE_ENV || "development";
 
 // Batteries Include
+app.use(helmet());
 app.use(logger("dev"));
 app.use(cookieParser());
 app.use(express.static("public"));

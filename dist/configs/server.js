@@ -7,6 +7,7 @@ const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const cors_1 = __importDefault(require("cors"));
 require("dotenv/config");
 const express_1 = __importDefault(require("express"));
+const helmet_1 = __importDefault(require("helmet"));
 const morgan_1 = __importDefault(require("morgan"));
 const errorMiddleware_1 = __importDefault(require("../middlewares/errorMiddleware"));
 const verifyApiKeyHeader_1 = __importDefault(require("../middlewares/verifyApiKeyHeader"));
@@ -17,6 +18,7 @@ const database_1 = __importDefault(require("./database"));
 const app = (0, express_1.default)();
 const env = process.env.NODE_ENV || "development";
 // Batteries Include
+app.use((0, helmet_1.default)());
 app.use((0, morgan_1.default)("dev"));
 app.use((0, cookie_parser_1.default)());
 app.use(express_1.default.static("public"));
