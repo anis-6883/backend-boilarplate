@@ -7,7 +7,8 @@ export const asyncHandler = (func: any) => async (req: Request, res: Response) =
   try {
     await func(req, res);
   } catch (err) {
-    return res.status(400).json({ status: false, message: err.message });
+    console.log(err);
+    return res.status(400).json({ status: false, message: "Internal Server Error" });
   }
 };
 

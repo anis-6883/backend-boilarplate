@@ -21,7 +21,8 @@ const asyncHandler = (func) => (req, res) => __awaiter(void 0, void 0, void 0, f
         yield func(req, res);
     }
     catch (err) {
-        return res.status(400).json({ status: false, message: err.message });
+        console.log(err);
+        return res.status(400).json({ status: false, message: "Internal Server Error" });
     }
 });
 exports.asyncHandler = asyncHandler;

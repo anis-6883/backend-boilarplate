@@ -13,40 +13,30 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.adminLogin = exports.adminRegistration = void 0;
+const bcrypt_1 = __importDefault(require("bcrypt"));
 const constants_1 = require("../../configs/constants");
 const helpers_1 = require("../../helpers");
 const model_1 = __importDefault(require("../user/model"));
 // Admin Registration
-const adminRegistration = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { email, password, firstName, lastName } = req.body;
-        const existingAdmin = yield model_1.default.findOne({ email });
-        if (existingAdmin) {
-            return res.json({ status: false, message: "This email already exist!" });
-        }
-        const salt = yield (0, helpers_1.generateSalt)();
-        const hashedPassword = yield (0, helpers_1.generatePassword)(password, salt);
-        const newAdmin = new model_1.default({
-            firstName,
-            lastName,
-            email,
-            password: hashedPassword,
-            salt: salt,
-        });
-        yield newAdmin.save();
-        const responseData = (0, helpers_1.exclude)(newAdmin._doc, ["__v", "password", "salt", "createdAt", "updatedAt"]);
-        const accessToken = (0, helpers_1.generateSignature)({ email, role: "admin" }, 60 * 60 * 24); // 1 Day
-        return res.json({
-            status: true,
-            message: "Admin Registered successfully!",
-            data: Object.assign(Object.assign({}, responseData), { accessToken }),
-        });
+exports.adminRegistration = (0, helpers_1.asyncHandler)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    // const { email, password, firstName, lastName } = req.body;
+    const existingAdmin = yield model_1.default.findOne({ email: req.body.email });
+    if (existingAdmin) {
+        return res.json({ status: false, message: "This email already exist!" });
     }
-    catch (error) {
-        next(error);
-    }
-});
-exports.adminRegistration = adminRegistration;
+    req.body.password = yield bcrypt_1.default.hash(req.body.password, 10);
+    // generatePassword(req.body.password, salt);
+    const newAdmin = new model_1.default(req.body);
+    yield newAdmin.save();
+    // const responseData = exclude(newAdmin._doc, ["__v", "password", "salt", "createdAt", "updatedAt"]);
+    const accessToken = (0, helpers_1.generateSignature)({ email: newAdmin.email, role: newAdmin.role }, 60 * 60 * 24); // 1 Day
+    // cookie set with access token
+    return res.json({
+        status: true,
+        message: "Admin Registered successfully!",
+        data: Object.assign(Object.assign({}, newAdmin), { accessToken }),
+    });
+}));
 // Admin Login
 const adminLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {

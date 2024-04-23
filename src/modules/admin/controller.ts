@@ -1,45 +1,36 @@
+import bcrypt from "bcrypt";
 import { NextFunction, Request, Response } from "express";
 import { EXPIRE_TIME } from "../../configs/constants";
-import { exclude, generatePassword, generateSalt, generateSignature, validatePassword } from "../../helpers";
+import { asyncHandler, exclude, generateSignature, validatePassword } from "../../helpers";
 import Admin from "../user/model";
 
 // Admin Registration
-export const adminRegistration = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { email, password, firstName, lastName } = req.body;
+export const adminRegistration = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+  // const { email, password, firstName, lastName } = req.body;
 
-    const existingAdmin = await Admin.findOne({ email });
+  const existingAdmin = await Admin.findOne({ email: req.body.email });
 
-    if (existingAdmin) {
-      return res.json({ status: false, message: "This email already exist!" });
-    }
-
-    const salt = await generateSalt();
-    const hashedPassword = await generatePassword(password, salt);
-
-    const newAdmin: any = new Admin({
-      firstName,
-      lastName,
-      email,
-      password: hashedPassword,
-      salt: salt,
-    });
-
-    await newAdmin.save();
-
-    const responseData = exclude(newAdmin._doc, ["__v", "password", "salt", "createdAt", "updatedAt"]);
-
-    const accessToken = generateSignature({ email, role: "admin" }, 60 * 60 * 24); // 1 Day
-
-    return res.json({
-      status: true,
-      message: "Admin Registered successfully!",
-      data: { ...responseData, accessToken },
-    });
-  } catch (error) {
-    next(error);
+  if (existingAdmin) {
+    return res.json({ status: false, message: "This email already exist!" });
   }
-};
+
+  req.body.password = await bcrypt.hash(req.body.password, 10);
+  // generatePassword(req.body.password, salt);
+
+  const newAdmin: any = new Admin(req.body);
+
+  await newAdmin.save();
+
+  // const responseData = exclude(newAdmin._doc, ["__v", "password", "salt", "createdAt", "updatedAt"]);
+
+  const accessToken = generateSignature({ email: newAdmin.email, role: newAdmin.role }, 60 * 60 * 24); // 1 Day
+  // cookie set with access token
+  return res.json({
+    status: true,
+    message: "Admin Registered successfully!",
+    data: { ...newAdmin, accessToken },
+  });
+});
 
 // Admin Login
 export const adminLogin = async (req: Request, res: Response, next: NextFunction) => {

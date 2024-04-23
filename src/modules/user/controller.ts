@@ -8,6 +8,8 @@ export const userRegistration = asyncHandler((req: Request, res: Response) => {
     abortEarly: false,
   });
 
+  // result ? res.status(200).send(result) : res.status(400).send(BAD_REQUEST)
+
   if (result.error) {
     const format: any = {};
 
@@ -15,7 +17,8 @@ export const userRegistration = asyncHandler((req: Request, res: Response) => {
       format[detail.context.label] = detail.message;
     });
 
-    return apiResponse(res, 400, false, "Input validation failed!", format);
+    // return apiResponse(res, 400, false, "Input validation failed!", format);
+    return res.status(200);
   }
 
   return apiResponse(res, 200, true, "User Registration!");
