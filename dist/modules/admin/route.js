@@ -8,5 +8,6 @@ const controller_1 = require("./controller");
 const router = express_1.default.Router();
 router.post("/login", controller_1.adminLogin);
 router.post("/register", controller_1.adminRegistration);
+router.post("/logout", controller_1.adminLogout);
 exports.default = router;
 //# sourceMappingURL=route.js.map

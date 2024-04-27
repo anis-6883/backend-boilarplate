@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const userSchema = new mongoose.Schema(
+const schema = new mongoose.Schema(
   {
     firstName: {
       type: String,
@@ -35,12 +35,7 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-    userType: {
-      type: String,
-      enum: ["user", "admin"],
-      default: "user",
-    },
-    userRole: {
+    role: {
       type: String,
       enum: ["user", "super-admin", "admin", "manager"],
       default: "user",
@@ -52,6 +47,15 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-const User = mongoose.model("User", userSchema);
+schema.methods.toJSON = function () {
+  const user = this.toObject();
+  delete user.__v;
+  delete user.password;
+  delete user.createdAt;
+  delete user.updatedAt;
+  return JSON.parse(JSON.stringify(user).replace(/_id/g, "id"));
+};
+
+const User = mongoose.model("User", schema);
 
 export default User;

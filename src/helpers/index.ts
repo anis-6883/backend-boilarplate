@@ -1,13 +1,14 @@
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { APP_SECRET } from "../configs/constants";
+import { APP_SECRET, SERVER_ERROR } from "../configs/constants";
 
 export const asyncHandler = (func: any) => async (req: Request, res: Response) => {
   try {
     await func(req, res);
   } catch (err) {
-    return res.status(400).json({ status: false, message: err.message });
+    console.log(err);
+    return res.status(400).json(SERVER_ERROR);
   }
 };
 
@@ -59,4 +60,20 @@ export const exclude = (existingApp: any, keys: any[]) => {
     delete existingApp[key];
   }
   return existingApp;
+};
+
+export const validateBody = (schema: any, body: Object): Boolean => {
+  const result = schema.validate(body, {
+    allowUnknown: true,
+    abortEarly: false,
+  });
+
+  if (result.error) return false;
+  return true;
+  // if (result.error) {
+  //   const format: any = {};
+  //   result.error.details.forEach((detail: any) => {
+  //     format[detail.context.label] = detail.message;
+  //   });
+  // }
 };

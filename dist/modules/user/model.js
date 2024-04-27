@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
-const userSchema = new mongoose_1.default.Schema({
+const schema = new mongoose_1.default.Schema({
     firstName: {
         type: String,
         required: true,
@@ -38,12 +38,7 @@ const userSchema = new mongoose_1.default.Schema({
         type: Boolean,
         default: true,
     },
-    userType: {
-        type: String,
-        enum: ["user", "admin"],
-        default: "user",
-    },
-    userRole: {
+    role: {
         type: String,
         enum: ["user", "super-admin", "admin", "manager"],
         default: "user",
@@ -52,6 +47,14 @@ const userSchema = new mongoose_1.default.Schema({
     timestamps: true,
     versionKey: false,
 });
-const User = mongoose_1.default.model("User", userSchema);
+schema.methods.toJSON = function () {
+    const user = this.toObject();
+    delete user.__v;
+    delete user.password;
+    delete user.createdAt;
+    delete user.updatedAt;
+    return JSON.parse(JSON.stringify(user).replace(/_id/g, "id"));
+};
+const User = mongoose_1.default.model("User", schema);
 exports.default = User;
 //# sourceMappingURL=model.js.map
