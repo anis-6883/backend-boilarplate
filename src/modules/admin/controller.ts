@@ -1,91 +1,89 @@
 import bcrypt from "bcrypt";
-import { NextFunction, Request, Response } from "express";
-import { EXPIRE_TIME } from "../../configs/constants";
-import { asyncHandler, exclude, generateSignature, validatePassword } from "../../helpers";
-import Admin from "../user/model";
+import { Request, Response } from "express";
+import { BAD_REQUEST, COOKIE_KEY, NOT_FOUND, REFRESH_TOKEN_KEY } from "../../configs/constants";
+import operations from "../../controller/operations";
+import { asyncHandler, generateSignature, validateBody } from "../../helpers";
+import User from "../user/model";
+import { loginSchema, registerSchema } from "./validation";
 
 // Admin Registration
-export const adminRegistration = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-  // const { email, password, firstName, lastName } = req.body;
+export const adminRegistration = asyncHandler(async (req: Request, res: Response) => {
+  const result = validateBody(registerSchema, req.body);
+  if (!result) return res.status(400).json(BAD_REQUEST);
 
-  const existingAdmin = await Admin.findOne({ email: req.body.email });
-
-  if (existingAdmin) {
-    return res.json({ status: false, message: "This email already exist!" });
-  }
+  const existingAdmin = await operations.findOne({ email: req.body.email });
+  if (existingAdmin) return res.status(400).json({ message: "This email already exist!" });
 
   req.body.password = await bcrypt.hash(req.body.password, 10);
-  // generatePassword(req.body.password, salt);
 
-  const newAdmin: any = new Admin(req.body);
+  const admin: any = await operations.create({ table: User, key: req.body });
 
-  await newAdmin.save();
+  const accessToken = generateSignature({ email: admin.email, role: admin.role }, "1d");
+  const refreshToken = generateSignature({ email: admin.email, role: admin.role }, "7d");
 
-  // const responseData = exclude(newAdmin._doc, ["__v", "password", "salt", "createdAt", "updatedAt"]);
-
-  const accessToken = generateSignature({ email: newAdmin.email, role: newAdmin.role }, 60 * 60 * 24); // 1 Day
-  // cookie set with access token
-  return res.json({
-    status: true,
-    message: "Admin Registered successfully!",
-    data: { ...newAdmin, accessToken },
+  res.cookie(COOKIE_KEY, accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "development" ? false : true,
+    sameSite: process.env.NODE_ENV === "development" ? "lax" : "none",
+    expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
   });
+
+  res.cookie(REFRESH_TOKEN_KEY, refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "development" ? false : true,
+    sameSite: process.env.NODE_ENV === "development" ? "lax" : "none",
+    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  });
+
+  return res.status(200).json(admin);
 });
 
 // Admin Login
-export const adminLogin = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { email, password } = req.body;
-    const existingAdmin: any = await Admin.findOne({ email });
+export const adminLogin = asyncHandler(async (req: Request, res: Response) => {
+  const result = validateBody(loginSchema, req.body);
+  if (!result) return res.status(400).json(BAD_REQUEST);
 
-    if (!existingAdmin) {
-      return res.json({ status: false, message: "Your credentials are incorrect!" });
-    }
+  const admin = await operations.findOne({ table: User, key: { email: req.body.email } });
+  if (!admin) return res.status(401).json(NOT_FOUND);
 
-    const validPassword = await validatePassword(password, existingAdmin.password, existingAdmin.salt);
+  const isPasswordValid = await bcrypt.compare(req.body.password, admin.password);
+  if (!isPasswordValid) return res.status(400).json({ message: "Password is invalid" });
 
-    if (!validPassword) {
-      return res.json({ status: false, message: "Your credentials are incorrect!" });
-    }
+  const accessToken = generateSignature({ email: admin.email, role: admin.role }, "1d");
+  const refreshToken = generateSignature({ email: admin.email, role: admin.role }, "7d");
 
-    const accessToken = generateSignature(
-      {
-        email: existingAdmin.email,
-        role: existingAdmin.role,
-      },
-      60 * 60 * 24 * 30 // 30 Days
-    );
+  res.cookie(COOKIE_KEY, accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "development" ? false : true,
+    sameSite: process.env.NODE_ENV === "development" ? "lax" : "none",
+    expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+  });
 
-    const refreshToken = generateSignature(
-      {
-        email: existingAdmin.email,
-        role: existingAdmin.role,
-      },
-      60 * 60 * 24 * 60 // 60 Days
-    );
+  res.cookie(REFRESH_TOKEN_KEY, refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "development" ? false : true,
+    sameSite: process.env.NODE_ENV === "development" ? "lax" : "none",
+    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  });
 
-    const admin = exclude(existingAdmin._doc, [
-      "_id",
-      "__v",
-      "verify_code",
-      "password",
-      "salt",
-      "forget_code",
-      "createdAt",
-      "updatedAt",
-    ]);
+  return res.status(200).json(admin);
+});
 
-    return res.json({
-      status: true,
-      message: "Admin Login Successfully!",
-      data: {
-        accessToken,
-        refreshToken,
-        expiresIn: new Date().setTime(new Date().getTime() + EXPIRE_TIME),
-        ...admin,
-      },
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+// Admin Logout
+export const adminLogout = asyncHandler(async (req: Request, res: Response) => {
+  res.clearCookie(COOKIE_KEY, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "development" ? false : true,
+    sameSite: process.env.NODE_ENV === "development" ? "lax" : "none",
+    expires: new Date(Date.now()),
+  });
+
+  res.clearCookie(REFRESH_TOKEN_KEY, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "development" ? false : true,
+    sameSite: process.env.NODE_ENV === "development" ? "lax" : "none",
+    expires: new Date(Date.now()),
+  });
+
+  return res.status(200).json({ message: "Logged out successfully" });
+});

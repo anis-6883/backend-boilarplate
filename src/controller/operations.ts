@@ -26,7 +26,7 @@
  *   }
  * });
  */
-const find = ({ table, key = {} }) =>
+const find = ({ table, key = {} }: any): Promise<any> =>
   new Promise((resolve, reject) => {
     const queryKeys = Object.keys(key?.query || {});
     const verified = queryKeys.every((k) => (key.allowedQuery || new Set([])).has(k));
@@ -68,10 +68,15 @@ const find = ({ table, key = {} }) =>
     delete key.options;
     delete key?.query;
     const args = [key, ...(noPaginate ? [null] : []), options];
-    // May break
-    resolve(table[method](...args)[noPaginate ? "populate" : "then"](populate))
-      .then((res) => resolve(res))
-      .catch((e) => reject(e));
+    // Ensure table[method](...args) returns a Promise
+    const result = table[method](...args);
+
+    // Resolve or reject the outer Promise based on the result
+    if (noPaginate) {
+      resolve(populate ? result.populate(populate) : result);
+    } else {
+      result.then((res: any) => resolve(res)).catch((e: any) => reject(e));
+    }
   });
 
 /**
@@ -83,17 +88,17 @@ const find = ({ table, key = {} }) =>
  * @example
  * const result = await findOne({ table: 'users', key: { name: 'John' } });
  */
-const findOne = async ({ table, key = {} }) =>
-  new Promise((resolve, reject) => {
-    if (key.id) key._id = key.id;
-    delete key.id;
-    if (Object.keys(key).length < 1) resolve(null);
-    table
-      .findOne(key)
-      .populate(key.populate?.path, key.populate?.select?.split(" "))
-      .then((res) => resolve(res))
-      .catch((e) => reject(e));
-  });
+const findOne = async ({ table, key = {} }: any): Promise<any> => {
+  if (key.id) key._id = key.id;
+  delete key.id;
+  if (Object.keys(key).length < 1) return null;
+  try {
+    const res = await table.findOne(key).populate(key.populate?.path, key.populate?.select?.split(" "));
+    return res;
+  } catch (e) {
+    throw e;
+  }
+};
 
 /**
  * Create a new document in a specified MongoDB collection.
@@ -110,7 +115,7 @@ const findOne = async ({ table, key = {} }) =>
  *   key: { name: 'John', age: 30, populate: { path: 'profile', select: 'name' } }
  * });
  */
-const create = async ({ table, key }) => {
+const create = async ({ table, key }: any): Promise<any> => {
   try {
     const elem = await new table(key);
     const res = await elem.save();
@@ -138,7 +143,7 @@ const create = async ({ table, key }) => {
  *   key: { id: '123', body: { name: 'John', age: 30 }, populate: { path: 'profile', select: 'name' } }
  * });
  */
-const update = async ({ table, key }) => {
+const update = async ({ table, key }: any): Promise<any> => {
   try {
     if (key.id) key._id = key.id;
     delete key.id;
@@ -162,7 +167,7 @@ const update = async ({ table, key }) => {
  * @return {Promise} A promise that resolves with the removed element if it was found and removed successfully,
  *   or with `null` if no element was found. Rejects with an error if there was an issue removing the element.
  */
-const remove = async (target) => {
+const remove = async (target: any): Promise<any> => {
   const { table, key, _id } = target;
   try {
     if (_id) {
@@ -189,7 +194,7 @@ const remove = async (target) => {
  * @return {Promise} A promise that resolves with an object containing information about the deleted elements.
  *   Rejects with an error if there was an issue deleting the elements.
  */
-const removeAll = async ({ table, key }) => {
+const removeAll = async ({ table, key }: any): Promise<any> => {
   try {
     const res = await table.deleteMany(key);
     return Promise.resolve(res);
@@ -198,7 +203,7 @@ const removeAll = async ({ table, key }) => {
   }
 };
 
-const updateMany = async ({ table, key }) => {
+const updateMany = async ({ table, key }: any) => {
   try {
     const { filter, update, options, callback } = key;
     const res = await table.updateMany(filter, update, options, callback);
@@ -215,7 +220,7 @@ const updateMany = async ({ table, key }) => {
  * @return {Promise}approved A promise that resolves with the saved element if it was saved successfully.
  *   Rejects with an error if there was an issue saving the element.
  */
-const save = async (data) => await data.save();
+const save = async (data: any): Promise<any> => await data.save();
 
 /**
  * Asynchronously populates the specified field(s) of a Mongoose model instance with documents from other collections.
@@ -226,17 +231,17 @@ const save = async (data) => await data.save();
  * @throws {Error} If data is not a valid Mongoose model instance or if payload is not a valid object or string.
  * @throws {Error} If an error occurs while populating the model instance.
  */
-const populate = async (data, payload = {}) => await data.populate(payload);
+const populate = async (data: any, payload = {}): Promise<any> => await data.populate(payload);
 
-const sort = async (data, payload = {}) => await data.sort(payload);
+const sort = async (data: any, payload = {}) => await data.sort(payload);
 
-const aggr = async ({ table, key }) => await table.aggregate(key);
+const aggr = async ({ table, key }: any) => await table.aggregate(key);
 
-const bulkCreate = async ({ table, docs }) => {
+const bulkCreate = async ({ table, docs }: any) => {
   await table.insertMany(docs, { ordered: false });
 };
 
-module.exports = {
+export = {
   find,
   findOne,
   create,
