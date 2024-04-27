@@ -14,7 +14,7 @@ export const userRegistration = asyncHandler((req: Request, res: Response) => {
     const format: any = {};
 
     result.error.details.forEach((detail) => {
-      format[detail.context.label] = detail.message;
+      format[detail?.context?.label] = detail.message;
     });
 
     // return apiResponse(res, 400, false, "Input validation failed!", format);

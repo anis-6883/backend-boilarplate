@@ -11,6 +11,7 @@ const config = {
         apiKey: process.env.API_KEY,
         appSecret: process.env.APP_SECRET,
         cookieName: "secret",
+        useHTTP2: false,
     },
     production: {
         corsOptions: {
@@ -22,6 +23,7 @@ const config = {
         apiKey: process.env.API_KEY,
         appSecret: process.env.APP_SECRET,
         cookieName: "secret",
+        useHTTP2: true,
     },
 };
 exports.default = config;

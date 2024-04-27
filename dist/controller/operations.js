@@ -1,13 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 /**
  * Find multiple documents in a specified MongoDB collection.
  * @param {Object} options - An object with the following properties:
@@ -37,34 +28,37 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
  * });
  */
 const find = ({ table, key = {} }) => new Promise((resolve, reject) => {
-    var _a, _b, _c, _d;
-    const queryKeys = Object.keys((key === null || key === void 0 ? void 0 : key.query) || {});
+    const queryKeys = Object.keys(key?.query || {});
     const verified = queryKeys.every((k) => (key.allowedQuery || new Set([])).has(k));
     if (!verified)
         return reject("Query validation issue");
-    const noPaginate = key.paginate === false || key.query.paginate === "false" || ((_a = key.query) === null || _a === void 0 ? void 0 : _a.search);
+    const noPaginate = key.paginate === false || key.query.paginate === "false" || key.query?.search;
     key.options = noPaginate
         ? { sort: {} }
-        : Object.assign(Object.assign({}, (key.populate && { populate: Object.assign({}, key.populate) })), { page: Number((_b = key === null || key === void 0 ? void 0 : key.query) === null || _b === void 0 ? void 0 : _b.page) || 0, limit: Number((_c = key === null || key === void 0 ? void 0 : key.query) === null || _c === void 0 ? void 0 : _c.limit) || 10, sort: Object.assign({}, (!((_d = key === null || key === void 0 ? void 0 : key.query) === null || _d === void 0 ? void 0 : _d.sortBy) && { createdAt: -1 })) });
+        : {
+            ...(key.populate && { populate: { ...key.populate } }),
+            page: Number(key?.query?.page) || 0,
+            limit: Number(key?.query?.limit) || 10,
+            sort: { ...(!key?.query?.sortBy && { createdAt: -1 }) },
+        };
     // prepare query object with provied queries to find.
-    queryKeys.forEach((k) => __awaiter(void 0, void 0, void 0, function* () {
-        var _e, _f, _g, _h;
-        if (typeof (key === null || key === void 0 ? void 0 : key.query[k]) === "string" && (key === null || key === void 0 ? void 0 : key.query[k].startsWith('{"')) && (key === null || key === void 0 ? void 0 : key.query[k].endsWith("}")))
-            key.query[k] = JSON.parse(key === null || key === void 0 ? void 0 : key.query[k]);
+    queryKeys.forEach(async (k) => {
+        if (typeof key?.query[k] === "string" && key?.query[k].startsWith('{"') && key?.query[k].endsWith("}"))
+            key.query[k] = JSON.parse(key?.query[k]);
         if (k === "sortBy") {
-            const parts = (_e = key === null || key === void 0 ? void 0 : key.query) === null || _e === void 0 ? void 0 : _e.sortBy.split(":");
+            const parts = key?.query?.sortBy.split(":");
             return (key.options.sort[parts[0]] = parts[1] === "desc" ? -1 : 1);
         }
         if (k === "search") {
-            const parts = (_f = key === null || key === void 0 ? void 0 : key.query) === null || _f === void 0 ? void 0 : _f.search.split(":");
+            const parts = key?.query?.search.split(":");
             return (key.options[parts[0]] = { $regex: parts[1], $options: "i" });
         }
         if (k === "id") {
-            key._id = (_g = key === null || key === void 0 ? void 0 : key.query) === null || _g === void 0 ? void 0 : _g.id;
-            return (_h = key === null || key === void 0 ? void 0 : key.query) === null || _h === void 0 ? true : delete _h.id;
+            key._id = key?.query?.id;
+            return delete key?.query?.id;
         }
-        key[k] = key === null || key === void 0 ? void 0 : key.query[k];
-    }));
+        key[k] = key?.query[k];
+    });
     const method = noPaginate ? "find" : "paginate";
     const options = key.options;
     const populate = key.populate;
@@ -72,7 +66,7 @@ const find = ({ table, key = {} }) => new Promise((resolve, reject) => {
     delete key.populate;
     delete key.paginate;
     delete key.options;
-    key === null || key === void 0 ? true : delete key.query;
+    delete key?.query;
     const args = [key, ...(noPaginate ? [null] : []), options];
     // Ensure table[method](...args) returns a Promise
     const result = table[method](...args);
@@ -93,21 +87,20 @@ const find = ({ table, key = {} }) => new Promise((resolve, reject) => {
  * @example
  * const result = await findOne({ table: 'users', key: { name: 'John' } });
  */
-const findOne = (_a) => __awaiter(void 0, [_a], void 0, function* ({ table, key = {} }) {
-    var _b, _c, _d;
+const findOne = async ({ table, key = {} }) => {
     if (key.id)
         key._id = key.id;
     delete key.id;
     if (Object.keys(key).length < 1)
         return null;
     try {
-        const res = yield table.findOne(key).populate((_b = key.populate) === null || _b === void 0 ? void 0 : _b.path, (_d = (_c = key.populate) === null || _c === void 0 ? void 0 : _c.select) === null || _d === void 0 ? void 0 : _d.split(" "));
+        const res = await table.findOne(key).populate(key.populate?.path, key.populate?.select?.split(" "));
         return res;
     }
     catch (e) {
         throw e;
     }
-});
+};
 /**
  * Create a new document in a specified MongoDB collection.
  * @param {Object} options - An object with the following properties:
@@ -123,17 +116,17 @@ const findOne = (_a) => __awaiter(void 0, [_a], void 0, function* ({ table, key 
  *   key: { name: 'John', age: 30, populate: { path: 'profile', select: 'name' } }
  * });
  */
-const create = (_e) => __awaiter(void 0, [_e], void 0, function* ({ table, key }) {
+const create = async ({ table, key }) => {
     try {
-        const elem = yield new table(key);
-        const res = yield elem.save();
-        key.populate && (yield res.populate(key.populate));
+        const elem = await new table(key);
+        const res = await elem.save();
+        key.populate && (await res.populate(key.populate));
         return res;
     }
     catch (e) {
         console.log(e);
     }
-});
+};
 /**
  * Update an existing document in a specified MongoDB collection.
  * @param {Object} options - An object with the following properties:
@@ -151,24 +144,23 @@ const create = (_e) => __awaiter(void 0, [_e], void 0, function* ({ table, key }
  *   key: { id: '123', body: { name: 'John', age: 30 }, populate: { path: 'profile', select: 'name' } }
  * });
  */
-const update = (_f) => __awaiter(void 0, [_f], void 0, function* ({ table, key }) {
-    var _g, _h, _j;
+const update = async ({ table, key }) => {
     try {
         if (key.id)
             key._id = key.id;
         delete key.id;
-        const element = yield table.findOne(key);
+        const element = await table.findOne(key);
         if (!element)
             return Promise.resolve(element);
         Object.keys(key.body || {}).forEach((param) => (element[param] = key.body[param]));
-        const res = yield element.save();
-        key.populate && (yield res.populate((_g = key.populate) === null || _g === void 0 ? void 0 : _g.path, (_j = (_h = key.populate) === null || _h === void 0 ? void 0 : _h.select) === null || _j === void 0 ? void 0 : _j.split(" ")));
+        const res = await element.save();
+        key.populate && (await res.populate(key.populate?.path, key.populate?.select?.split(" ")));
         return Promise.resolve(element);
     }
     catch (e) {
         return Promise.reject(e);
     }
-});
+};
 /**
  * remove - Removes an element from the specified table that matches the provided key.
  *
@@ -178,27 +170,27 @@ const update = (_f) => __awaiter(void 0, [_f], void 0, function* ({ table, key }
  * @return {Promise} A promise that resolves with the removed element if it was found and removed successfully,
  *   or with `null` if no element was found. Rejects with an error if there was an issue removing the element.
  */
-const remove = (target) => __awaiter(void 0, void 0, void 0, function* () {
+const remove = async (target) => {
     const { table, key, _id } = target;
     try {
         if (_id) {
             //if mongodb instance found then delete with obj.remove method.
-            yield target.remove();
+            await target.remove();
             return Promise.resolve(target);
         }
         if (key.id)
             key._id = key.id;
         delete key.id;
-        const element = yield table.findOne(key);
+        const element = await table.findOne(key);
         if (!element)
             return Promise.resolve(element);
-        yield element.remove();
+        await element.remove();
         return Promise.resolve(element);
     }
     catch (e) {
         Promise.reject(e);
     }
-});
+};
 /**
  * removeAll - Removes all elements from the specified table.
  *
@@ -207,25 +199,25 @@ const remove = (target) => __awaiter(void 0, void 0, void 0, function* () {
  * @return {Promise} A promise that resolves with an object containing information about the deleted elements.
  *   Rejects with an error if there was an issue deleting the elements.
  */
-const removeAll = (_k) => __awaiter(void 0, [_k], void 0, function* ({ table, key }) {
+const removeAll = async ({ table, key }) => {
     try {
-        const res = yield table.deleteMany(key);
+        const res = await table.deleteMany(key);
         return Promise.resolve(res);
     }
     catch (e) {
         Promise.reject(e);
     }
-});
-const updateMany = (_l) => __awaiter(void 0, [_l], void 0, function* ({ table, key }) {
+};
+const updateMany = async ({ table, key }) => {
     try {
         const { filter, update, options, callback } = key;
-        const res = yield table.updateMany(filter, update, options, callback);
+        const res = await table.updateMany(filter, update, options, callback);
         return Promise.resolve(res);
     }
     catch (err) {
         Promise.reject(err);
     }
-});
+};
 /**
  * save - Saves an element to the database.
  *
@@ -233,7 +225,7 @@ const updateMany = (_l) => __awaiter(void 0, [_l], void 0, function* ({ table, k
  * @return {Promise}approved A promise that resolves with the saved element if it was saved successfully.
  *   Rejects with an error if there was an issue saving the element.
  */
-const save = (data) => __awaiter(void 0, void 0, void 0, function* () { return yield data.save(); });
+const save = async (data) => await data.save();
 /**
  * Asynchronously populates the specified field(s) of a Mongoose model instance with documents from other collections.
  *
@@ -243,12 +235,12 @@ const save = (data) => __awaiter(void 0, void 0, void 0, function* () { return y
  * @throws {Error} If data is not a valid Mongoose model instance or if payload is not a valid object or string.
  * @throws {Error} If an error occurs while populating the model instance.
  */
-const populate = (data_1, ...args_1) => __awaiter(void 0, [data_1, ...args_1], void 0, function* (data, payload = {}) { return yield data.populate(payload); });
-const sort = (data_2, ...args_2) => __awaiter(void 0, [data_2, ...args_2], void 0, function* (data, payload = {}) { return yield data.sort(payload); });
-const aggr = (_m) => __awaiter(void 0, [_m], void 0, function* ({ table, key }) { return yield table.aggregate(key); });
-const bulkCreate = (_o) => __awaiter(void 0, [_o], void 0, function* ({ table, docs }) {
-    yield table.insertMany(docs, { ordered: false });
-});
+const populate = async (data, payload = {}) => await data.populate(payload);
+const sort = async (data, payload = {}) => await data.sort(payload);
+const aggr = async ({ table, key }) => await table.aggregate(key);
+const bulkCreate = async ({ table, docs }) => {
+    await table.insertMany(docs, { ordered: false });
+};
 module.exports = {
     find,
     findOne,

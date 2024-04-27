@@ -1,28 +1,37 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const fs_1 = require("fs");
 const server_1 = __importDefault(require("./configs/server"));
-const startServer = () => __awaiter(void 0, void 0, void 0, function* () {
+const http_1 = __importDefault(require("http"));
+const https_1 = __importDefault(require("https"));
+const path_1 = __importDefault(require("path"));
+const logger_1 = __importDefault(require("helpers/logger"));
+const startServer = async () => {
     try {
         const PORT = process.env.PORT || 8080;
-        server_1.default.listen(PORT);
-        console.log(`Server is running on port ${PORT}`);
+        let server;
+        if (process.env.NODE_ENV === "development")
+            server = http_1.default.createServer(server_1.default);
+        else {
+            const options = {
+                key: (0, fs_1.readFileSync)(path_1.default.join(process.cwd(), "ssl", "privatekey.pem")), // paths can varry depending on environment
+                cert: (0, fs_1.readFileSync)(path_1.default.join(process.cwd(), "ssl", "certificate.pem")), // paths can varry depending on environment
+                allowHTTP1: true,
+                protocols: ["h2", "http/1.1"],
+            };
+            server = https_1.default.createServer(options, server_1.default);
+        }
+        server.listen(PORT, () => {
+            logger_1.default.info(`=> Server listening on port ${PORT}`);
+        });
     }
     catch (error) {
         console.error("Error starting the server:", error.message);
         process.exit(1);
     }
-});
+};
 startServer();
 //# sourceMappingURL=index.js.map

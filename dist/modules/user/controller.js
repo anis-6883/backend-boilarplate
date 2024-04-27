@@ -12,7 +12,7 @@ exports.userRegistration = (0, helpers_1.asyncHandler)((req, res) => {
     if (result.error) {
         const format = {};
         result.error.details.forEach((detail) => {
-            format[detail.context.label] = detail.message;
+            format[detail?.context?.label] = detail.message;
         });
         // return apiResponse(res, 400, false, "Input validation failed!", format);
         return res.status(200);
