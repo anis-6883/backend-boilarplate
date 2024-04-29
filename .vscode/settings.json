@@ -3,9 +3,8 @@
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit",
-    "source.organizeImports": "explicit"
+    "source.organizeImports": "never"
   },
-
   "prettier.semi": true,
   "prettier.tabWidth": 2,
   "prettier.printWidth": 120,

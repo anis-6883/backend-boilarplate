@@ -70,7 +70,7 @@ export const adminLogin = asyncHandler(async (req: Request, res: Response) => {
 });
 
 // Admin Logout
-export const adminLogout = asyncHandler(async (req: Request, res: Response) => {
+export const adminLogout = asyncHandler(async (_req: Request, res: Response) => {
   res.clearCookie(COOKIE_KEY, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "development" ? false : true,
