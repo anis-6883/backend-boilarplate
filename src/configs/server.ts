@@ -1,33 +1,50 @@
+import "dotenv/config";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import "dotenv/config";
-import express from "express";
+import morgan from "morgan";
+import express, { NextFunction, Response } from "express";
 import helmet from "helmet";
 import logger from "morgan";
+import { parse } from "express-form-data";
+import rateLimit from "express-rate-limit";
+import actuator from "express-actuator";
 import errorMiddleware from "../middlewares/errorMiddleware";
 import verifyApiKeyHeader from "../middlewares/verifyApiKeyHeader";
 import adminRoutes from "../routes/admin.routes";
 import webRoutes from "../routes/web.routes";
 import config from "./config";
 import connectToDatabase from "./database";
+const env = process.env.NODE_ENV || "development";
+
+connectToDatabase(config[env].databaseURI);
 
 const app = express();
-const env = process.env.NODE_ENV || "development";
 
 // Batteries Include
 app.use(helmet());
 app.use(logger("dev"));
 app.use(cookieParser());
 app.use(express.static("public"));
+app.use(morgan("common"));
+app.use(parse());
 app.use(cors(config[env].corsOptions));
 app.use(express.json({ limit: "100kb" }));
 app.use(express.urlencoded({ extended: true, limit: "100kb" }));
+app.use(actuator({ infoGitMode: "full" }));
+app.use(
+  rateLimit({
+    windowMs: 14 * 16 * 1000,
+    max: 100,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: "You have bombered the api!",
+  })
+);
 
 // Connect to MongoDB with Mongoose
-connectToDatabase(config[env].databaseURI);
 
 // Home Route
-app.get("/", (req, res) => {
+app.get("/", (_, res: Response) => {
   return res.status(200).json({ message: "Assalamu Alaikum World!" });
 });
 
@@ -36,8 +53,8 @@ app.use("/api/v1", verifyApiKeyHeader, webRoutes); // web
 app.use("/api/v1/admin", verifyApiKeyHeader, adminRoutes); // admin
 
 // 404 Route
-app.use((req, res, next) => {
-  return res.status(404).send({ status: false, message: "This route does not exist!" });
+app.use((_, res: Response, _next: NextFunction) => {
+  return res.status(404).json({ status: false, message: "Route not found" });
 });
 
 // Error Handling Middleware

@@ -7,3 +7,4 @@ export const NOT_FOUND = { message: "Not found" };
 export const SUCCESS = { message: "Action successful" };
 export const COOKIE_KEY = "act";
 export const REFRESH_TOKEN_KEY = "rft";
+export const MIME_TYPE = [""];

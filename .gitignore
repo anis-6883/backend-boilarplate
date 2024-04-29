@@ -6,6 +6,7 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
+dist
 
 pnpm-lock.yaml
 
@@ -129,3 +130,10 @@ out
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+#  logs
+.log*
+.log.gz*
+
+# cache
+.cache

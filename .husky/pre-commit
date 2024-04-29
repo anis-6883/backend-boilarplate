@@ -1,3 +1,2 @@
-npm run format 
-npm run build
+npm run format
 git add -A .
