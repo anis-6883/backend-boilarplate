@@ -19,8 +19,9 @@ const admin_routes_1 = __importDefault(require("../routes/admin.routes"));
 const web_routes_1 = __importDefault(require("../routes/web.routes"));
 const config_1 = __importDefault(require("./config"));
 const database_1 = __importDefault(require("./database"));
-const app = (0, express_1.default)();
 const env = process.env.NODE_ENV || "development";
+(0, database_1.default)(config_1.default[env].databaseURI);
+const app = (0, express_1.default)();
 // Batteries Include
 app.use((0, helmet_1.default)());
 app.use((0, morgan_2.default)("dev"));
@@ -40,7 +41,6 @@ app.use((0, express_rate_limit_1.default)({
     message: "You have bombered the api!",
 }));
 // Connect to MongoDB with Mongoose
-(0, database_1.default)(config_1.default[env].databaseURI);
 // Home Route
 app.get("/", (_, res) => {
     return res.status(200).json({ message: "Assalamu Alaikum World!" });

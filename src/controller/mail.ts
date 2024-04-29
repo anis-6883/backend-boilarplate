@@ -1,12 +1,10 @@
-import logger from "helpers/logger";
+import logger from "../helpers/logger";
 import nodemailer, { SentMessageInfo } from "nodemailer";
 import { MailOptions, SMTPConfig } from "types";
 
 export default class MailService {
   private static instance: MailService;
   private transporter!: nodemailer.Transporter;
-
-  private constructor() {}
 
   static getInstance() {
     if (!MailService.instance) {
@@ -15,6 +13,7 @@ export default class MailService {
     return MailService.instance;
   }
 
+  //for test purpose only
   async createLocalConnection() {
     let account = await nodemailer.createTestAccount();
     this.transporter = nodemailer.createTransport({

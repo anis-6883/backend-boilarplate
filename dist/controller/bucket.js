@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const client_s3_1 = require("@aws-sdk/client-s3");
 const crypto_1 = require("crypto");
 const fs_1 = require("fs");
-const logger_1 = __importDefault(require("helpers/logger"));
+const logger_1 = __importDefault(require("../helpers/logger"));
 class S3Utils {
     constructor(options) {
         this.s3Options = options;
@@ -35,8 +35,7 @@ class S3Utils {
         if (extIndex === -1)
             return undefined;
         const ext = file.name.substring(extIndex + 1);
-        const fileName = dir + "/" + (0, crypto_1.randomBytes)(16).toString("hex") + "." + ext;
-        return fileName;
+        return dir + "/" + (0, crypto_1.randomBytes)(16).toString("hex") + "." + ext;
     }
     async uploadFile(file, dir) {
         try {
@@ -64,7 +63,6 @@ class S3Utils {
         try {
             const keyIndex = url.lastIndexOf("/");
             const key = `${dir}/${url.substring(keyIndex + 1)}`;
-            console.log("Delete key", key);
             const params = {
                 Bucket: this.s3Options.directory,
                 Key: key,

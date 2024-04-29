@@ -8,13 +8,16 @@ const logger_1 = __importDefault(require("helpers/logger"));
 const model_1 = __importDefault(require("modules/user/model"));
 async function verifyOtp(req, res, next) {
     try {
-        const otp = req.body || undefined;
+        const otp = req?.body;
         if (!otp)
             return res.status(400).send("OTP is required.");
         const token = req?.cookies?.[process.env.OTP_COOKIE_KEY] || req?.headers?.["token"];
         if (!token)
             return res.status(401).send("Unauthorized");
-        const { valid, message, email } = (0, helpers_1.decodeOtpToken)(token, otp);
+        const data = (0, helpers_1.decodeOtpToken)(token, otp);
+        if (!data)
+            return res.status(401).send("Unauthorized");
+        const { valid, message, email } = data;
         if (!valid)
             return res.status(401).send(message);
         const user = await model_1.default.findOne({ email });

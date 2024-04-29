@@ -14,9 +14,11 @@ import adminRoutes from "../routes/admin.routes";
 import webRoutes from "../routes/web.routes";
 import config from "./config";
 import connectToDatabase from "./database";
+const env = process.env.NODE_ENV || "development";
+
+connectToDatabase(config[env].databaseURI);
 
 const app = express();
-const env = process.env.NODE_ENV || "development";
 
 // Batteries Include
 app.use(helmet());
@@ -40,7 +42,6 @@ app.use(
 );
 
 // Connect to MongoDB with Mongoose
-connectToDatabase(config[env].databaseURI);
 
 // Home Route
 app.get("/", (_, res: Response) => {

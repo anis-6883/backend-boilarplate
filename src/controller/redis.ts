@@ -5,7 +5,9 @@ export default class RedisUtils {
   private client!: Redis;
 
   constructor() {
-    this.client = new Redis();
+    this.client = new Redis(
+      "redis://default:ywzlMxu7APnImHZS62YOTiTRCSn4saFo@redis-14739.c273.us-east-1-2.ec2.redns.redis-cloud.com:14739"
+    );
   }
 
   static getInstance() {
@@ -40,6 +42,4 @@ export default class RedisUtils {
   async increaseBy(key: string, subKey: string, value: number) {
     return await this.client.hincrby(key, subKey, value);
   }
-
-  // write more methods if needed
 }

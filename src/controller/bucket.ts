@@ -1,7 +1,7 @@
 import { DeleteObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { randomBytes } from "crypto";
 import { readFileSync } from "fs";
-import logger from "helpers/logger";
+import logger from "../helpers/logger";
 import { S3BucketOptions, S3UpdateResult } from "types";
 
 export default class S3Utils {
@@ -35,12 +35,11 @@ export default class S3Utils {
     return size > this.s3Options.maxSize;
   }
 
-  getFileName(file: any, dir: string) {
+  getFileName(file: any, dir: string): string | undefined {
     const extIndex = file.name.lastIndexOf(".");
     if (extIndex === -1) return undefined;
     const ext = file.name.substring(extIndex + 1);
-    const fileName = dir + "/" + randomBytes(16).toString("hex") + "." + ext;
-    return fileName;
+    return dir + "/" + randomBytes(16).toString("hex") + "." + ext;
   }
 
   async uploadFile(file: any, dir: string): Promise<S3UpdateResult | null> {
@@ -69,7 +68,6 @@ export default class S3Utils {
     try {
       const keyIndex = url.lastIndexOf("/");
       const key = `${dir}/${url.substring(keyIndex + 1)}`;
-      console.log("Delete key", key);
 
       const params = {
         Bucket: this.s3Options.directory,

@@ -6,11 +6,13 @@ import { ApiRequest } from "types";
 
 export default async function verifyOtp(req: ApiRequest, res: Response, next: NextFunction): Promise<any> {
   try {
-    const otp = req.body || undefined;
+    const otp = req?.body;
     if (!otp) return res.status(400).send("OTP is required.");
     const token = req?.cookies?.[process.env.OTP_COOKIE_KEY!] || req?.headers?.["token"];
     if (!token) return res.status(401).send("Unauthorized");
-    const { valid, message, email } = decodeOtpToken(token, otp);
+    const data = decodeOtpToken(token, otp);
+    if (!data) return res.status(401).send("Unauthorized");
+    const { valid, message, email } = data;
     if (!valid) return res.status(401).send(message);
     const user = await User.findOne({ email });
     if (!user) return res.status(404).send("User not found");

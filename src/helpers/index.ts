@@ -4,7 +4,7 @@ import CryptoJS from "crypto-js";
 import jwt from "jsonwebtoken";
 import { APP_SECRET, SERVER_ERROR } from "../configs/constants";
 import logger from "./logger";
-import User from "modules/user/model";
+import User from "../modules/user/model";
 
 export const asyncHandler = (func: any) => async (req: Request, res: Response) => {
   try {

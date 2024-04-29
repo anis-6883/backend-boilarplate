@@ -13,6 +13,7 @@ export interface Config {
     appSecret: string;
     cookieName: string;
     useHTTP2: boolean;
+    s3Options: S3BucketOptions;
   };
 }
 

@@ -8,7 +8,7 @@ const plugin_data_persistence_1 = require("@orama/plugin-data-persistence");
 const path_1 = __importDefault(require("path"));
 const fs_1 = require("fs");
 const schemas_1 = require("./schemas");
-const logger_1 = __importDefault(require("helpers/logger"));
+const logger_1 = __importDefault(require("../../helpers/logger"));
 class SearchCtrl {
     constructor() {
         this.instances = {};

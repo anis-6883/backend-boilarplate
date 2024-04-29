@@ -9,7 +9,7 @@ const crypto_js_1 = __importDefault(require("crypto-js"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const constants_1 = require("../configs/constants");
 const logger_1 = __importDefault(require("./logger"));
-const model_1 = __importDefault(require("modules/user/model"));
+const model_1 = __importDefault(require("../modules/user/model"));
 const asyncHandler = (func) => async (req, res) => {
     try {
         await func(req, res);

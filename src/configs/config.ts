@@ -1,4 +1,5 @@
 import { Config } from "types";
+import { MIME_TYPE } from "./constants";
 
 const config: Config = {
   development: {
@@ -12,6 +13,14 @@ const config: Config = {
     appSecret: process.env.APP_SECRET!,
     cookieName: "secret",
     useHTTP2: false,
+    s3Options: {
+      secretAccessKey: process.env.S3_SECRET_ACCESS_KEY!,
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+      region: process.env.AWS_REGIION!,
+      directory: process.env.AWS_BUCKET_DIRECTORY_NAME!,
+      mimeTypes: MIME_TYPE,
+      maxSize: 10240000,
+    },
   },
   production: {
     corsOptions: {
@@ -24,6 +33,14 @@ const config: Config = {
     appSecret: process.env.APP_SECRET!,
     cookieName: "secret",
     useHTTP2: true,
+    s3Options: {
+      secretAccessKey: process.env.S3_SECRET_ACCESS_KEY!,
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+      region: process.env.AWS_REGIION!,
+      directory: process.env.AWS_BUCKET_DIRECTORY_NAME!,
+      mimeTypes: MIME_TYPE,
+      maxSize: 10240000,
+    },
   },
 };
 

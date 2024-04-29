@@ -9,12 +9,17 @@
     "forceConsistentCasingInFileNames": true,
     "declaration": false,
     "sourceMap": true,
-    "strict": false,
+    "strict": true,
     "pretty": true,
     "baseUrl": "src",
     "outDir": "dist",
     "noImplicitAny": true,
     "rootDir": "src"
+    // "paths": {
+    //   "@/*": ["./src/*"],
+    //   "@middlewares/*": ["./src/middlewares/*"],
+    //   "@controllers/*": ["./src/controllers/*"]
+    // }
   },
   "include": ["src/**/*"]
 }

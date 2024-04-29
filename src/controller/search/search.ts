@@ -3,7 +3,7 @@ import { persistToFile, restoreFromFile } from "@orama/plugin-data-persistence";
 import path from "path";
 import { existsSync, mkdirSync } from "fs";
 import { schemas } from "./schemas";
-import logger from "helpers/logger";
+import logger from "../../helpers/logger";
 
 type Schema = Record<string, Record<string, string>>;
 

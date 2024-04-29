@@ -3,16 +3,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const logger_1 = __importDefault(require("helpers/logger"));
+const logger_1 = __importDefault(require("../helpers/logger"));
 const nodemailer_1 = __importDefault(require("nodemailer"));
 class MailService {
-    constructor() { }
     static getInstance() {
         if (!MailService.instance) {
             MailService.instance = new MailService();
         }
         return MailService.instance;
     }
+    //for test purpose only
     async createLocalConnection() {
         let account = await nodemailer_1.default.createTestAccount();
         this.transporter = nodemailer_1.default.createTransport({

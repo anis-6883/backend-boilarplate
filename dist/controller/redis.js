@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const ioredis_1 = __importDefault(require("ioredis"));
 class RedisUtils {
     constructor() {
-        this.client = new ioredis_1.default();
+        this.client = new ioredis_1.default("redis://default:ywzlMxu7APnImHZS62YOTiTRCSn4saFo@redis-14739.c273.us-east-1-2.ec2.redns.redis-cloud.com:14739");
     }
     static getInstance() {
         if (!RedisUtils.instance) {
