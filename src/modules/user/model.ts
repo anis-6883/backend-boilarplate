@@ -27,10 +27,6 @@ const schema = new mongoose.Schema(
       type: String,
       default: null,
     },
-    refreshToken: {
-      type: String,
-      default: null,
-    },
     status: {
       type: Boolean,
       default: true,

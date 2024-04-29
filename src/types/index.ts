@@ -11,3 +11,15 @@ export interface Config {
     cookieName: string;
   };
 }
+export interface IUser {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  image: string;
+  status: boolean;
+  role: string;
+  createdAt: Date;
+  updatedAt: Date;
+}

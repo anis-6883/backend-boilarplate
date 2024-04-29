@@ -23,12 +23,12 @@ const validation_1 = require("./validation");
 exports.adminRegistration = (0, helpers_1.asyncHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = (0, helpers_1.validateBody)(validation_1.registerSchema, req.body);
     if (!result)
-        return res.status(400).json(constants_1.BAD_REQUEST);
+        return (0, helpers_1.apiResponse)(res, 400, false, "Invalid Request!");
     const existingAdmin = yield operations_1.default.findOne({ email: req.body.email });
     if (existingAdmin)
-        return res.status(400).json({ message: "This email already exist!" });
+        return (0, helpers_1.apiResponse)(res, 400, false, "User already exists!");
     req.body.password = yield bcrypt_1.default.hash(req.body.password, 10);
-    const admin = yield operations_1.default.create({ table: model_1.default, key: req.body });
+    const admin = yield operations_1.default.create({ table: model_1.default, key: Object.assign(Object.assign({}, req.body), { role: "admin" }) });
     const accessToken = (0, helpers_1.generateSignature)({ email: admin.email, role: admin.role }, "1d");
     const refreshToken = (0, helpers_1.generateSignature)({ email: admin.email, role: admin.role }, "7d");
     res.cookie(constants_1.COOKIE_KEY, accessToken, {
@@ -43,19 +43,19 @@ exports.adminRegistration = (0, helpers_1.asyncHandler)((req, res) => __awaiter(
         sameSite: process.env.NODE_ENV === "development" ? "lax" : "none",
         expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
-    return res.status(200).json(admin);
+    return (0, helpers_1.apiResponse)(res, 200, true, "Admin Registration Successfully!", admin);
 }));
 // Admin Login
 exports.adminLogin = (0, helpers_1.asyncHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = (0, helpers_1.validateBody)(validation_1.loginSchema, req.body);
     if (!result)
-        return res.status(400).json(constants_1.BAD_REQUEST);
+        return (0, helpers_1.apiResponse)(res, 400, false, "Invalid Request!");
     const admin = yield operations_1.default.findOne({ table: model_1.default, key: { email: req.body.email } });
     if (!admin)
-        return res.status(401).json(constants_1.NOT_FOUND);
+        return (0, helpers_1.apiResponse)(res, 401, false, "User does not exist!");
     const isPasswordValid = yield bcrypt_1.default.compare(req.body.password, admin.password);
     if (!isPasswordValid)
-        return res.status(400).json({ message: "Password is invalid" });
+        return (0, helpers_1.apiResponse)(res, 401, false, "Invalid Credentials!");
     const accessToken = (0, helpers_1.generateSignature)({ email: admin.email, role: admin.role }, "1d");
     const refreshToken = (0, helpers_1.generateSignature)({ email: admin.email, role: admin.role }, "7d");
     res.cookie(constants_1.COOKIE_KEY, accessToken, {
@@ -70,7 +70,7 @@ exports.adminLogin = (0, helpers_1.asyncHandler)((req, res) => __awaiter(void 0,
         sameSite: process.env.NODE_ENV === "development" ? "lax" : "none",
         expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
-    return res.status(200).json(admin);
+    return (0, helpers_1.apiResponse)(res, 200, true, "Admin Login Successfully!", admin);
 }));
 // Admin Logout
 exports.adminLogout = (0, helpers_1.asyncHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -86,6 +86,6 @@ exports.adminLogout = (0, helpers_1.asyncHandler)((req, res) => __awaiter(void 0
         sameSite: process.env.NODE_ENV === "development" ? "lax" : "none",
         expires: new Date(Date.now()),
     });
-    return res.status(200).json({ message: "Logged out successfully" });
+    return (0, helpers_1.apiResponse)(res, 200, true, "Admin Logout Successfully!");
 }));
 //# sourceMappingURL=controller.js.map

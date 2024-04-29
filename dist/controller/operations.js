@@ -93,15 +93,15 @@ const find = ({ table, key = {} }) => new Promise((resolve, reject) => {
  * @example
  * const result = await findOne({ table: 'users', key: { name: 'John' } });
  */
-const findOne = (_a) => __awaiter(void 0, [_a], void 0, function* ({ table, key = {} }) {
-    var _b, _c, _d;
+const findOne = ({ table, key = {} }) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b, _c;
     if (key.id)
         key._id = key.id;
     delete key.id;
     if (Object.keys(key).length < 1)
         return null;
     try {
-        const res = yield table.findOne(key).populate((_b = key.populate) === null || _b === void 0 ? void 0 : _b.path, (_d = (_c = key.populate) === null || _c === void 0 ? void 0 : _c.select) === null || _d === void 0 ? void 0 : _d.split(" "));
+        const res = yield table.findOne(key).populate((_a = key.populate) === null || _a === void 0 ? void 0 : _a.path, (_c = (_b = key.populate) === null || _b === void 0 ? void 0 : _b.select) === null || _c === void 0 ? void 0 : _c.split(" "));
         return res;
     }
     catch (e) {
@@ -123,7 +123,7 @@ const findOne = (_a) => __awaiter(void 0, [_a], void 0, function* ({ table, key 
  *   key: { name: 'John', age: 30, populate: { path: 'profile', select: 'name' } }
  * });
  */
-const create = (_e) => __awaiter(void 0, [_e], void 0, function* ({ table, key }) {
+const create = ({ table, key }) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const elem = yield new table(key);
         const res = yield elem.save();
@@ -151,8 +151,8 @@ const create = (_e) => __awaiter(void 0, [_e], void 0, function* ({ table, key }
  *   key: { id: '123', body: { name: 'John', age: 30 }, populate: { path: 'profile', select: 'name' } }
  * });
  */
-const update = (_f) => __awaiter(void 0, [_f], void 0, function* ({ table, key }) {
-    var _g, _h, _j;
+const update = ({ table, key }) => __awaiter(void 0, void 0, void 0, function* () {
+    var _d, _e, _f;
     try {
         if (key.id)
             key._id = key.id;
@@ -162,7 +162,7 @@ const update = (_f) => __awaiter(void 0, [_f], void 0, function* ({ table, key }
             return Promise.resolve(element);
         Object.keys(key.body || {}).forEach((param) => (element[param] = key.body[param]));
         const res = yield element.save();
-        key.populate && (yield res.populate((_g = key.populate) === null || _g === void 0 ? void 0 : _g.path, (_j = (_h = key.populate) === null || _h === void 0 ? void 0 : _h.select) === null || _j === void 0 ? void 0 : _j.split(" ")));
+        key.populate && (yield res.populate((_d = key.populate) === null || _d === void 0 ? void 0 : _d.path, (_f = (_e = key.populate) === null || _e === void 0 ? void 0 : _e.select) === null || _f === void 0 ? void 0 : _f.split(" ")));
         return Promise.resolve(element);
     }
     catch (e) {
@@ -207,7 +207,7 @@ const remove = (target) => __awaiter(void 0, void 0, void 0, function* () {
  * @return {Promise} A promise that resolves with an object containing information about the deleted elements.
  *   Rejects with an error if there was an issue deleting the elements.
  */
-const removeAll = (_k) => __awaiter(void 0, [_k], void 0, function* ({ table, key }) {
+const removeAll = ({ table, key }) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const res = yield table.deleteMany(key);
         return Promise.resolve(res);
@@ -216,7 +216,7 @@ const removeAll = (_k) => __awaiter(void 0, [_k], void 0, function* ({ table, ke
         Promise.reject(e);
     }
 });
-const updateMany = (_l) => __awaiter(void 0, [_l], void 0, function* ({ table, key }) {
+const updateMany = ({ table, key }) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { filter, update, options, callback } = key;
         const res = yield table.updateMany(filter, update, options, callback);
@@ -243,10 +243,10 @@ const save = (data) => __awaiter(void 0, void 0, void 0, function* () { return y
  * @throws {Error} If data is not a valid Mongoose model instance or if payload is not a valid object or string.
  * @throws {Error} If an error occurs while populating the model instance.
  */
-const populate = (data_1, ...args_1) => __awaiter(void 0, [data_1, ...args_1], void 0, function* (data, payload = {}) { return yield data.populate(payload); });
-const sort = (data_2, ...args_2) => __awaiter(void 0, [data_2, ...args_2], void 0, function* (data, payload = {}) { return yield data.sort(payload); });
-const aggr = (_m) => __awaiter(void 0, [_m], void 0, function* ({ table, key }) { return yield table.aggregate(key); });
-const bulkCreate = (_o) => __awaiter(void 0, [_o], void 0, function* ({ table, docs }) {
+const populate = (data, payload = {}) => __awaiter(void 0, void 0, void 0, function* () { return yield data.populate(payload); });
+const sort = (data, payload = {}) => __awaiter(void 0, void 0, void 0, function* () { return yield data.sort(payload); });
+const aggr = ({ table, key }) => __awaiter(void 0, void 0, void 0, function* () { return yield table.aggregate(key); });
+const bulkCreate = ({ table, docs }) => __awaiter(void 0, void 0, void 0, function* () {
     yield table.insertMany(docs, { ordered: false });
 });
 module.exports = {

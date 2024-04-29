@@ -5,5 +5,5 @@ export const SERVER_ERROR = { message: "Internal Server Error" };
 export const UNAUTHORIZED = { message: "Unauthorized" };
 export const NOT_FOUND = { message: "Not found" };
 export const SUCCESS = { message: "Action successful" };
-export const COOKIE_KEY = "boiler_plate";
-export const REFRESH_TOKEN_KEY = "boiler_plate_refresh";
+export const COOKIE_KEY = "act";
+export const REFRESH_TOKEN_KEY = "rft";

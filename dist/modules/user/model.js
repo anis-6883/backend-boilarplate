@@ -30,10 +30,6 @@ const schema = new mongoose_1.default.Schema({
         type: String,
         default: null,
     },
-    refreshToken: {
-        type: String,
-        default: null,
-    },
     status: {
         type: Boolean,
         default: true,
