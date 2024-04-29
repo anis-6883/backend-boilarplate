@@ -86,7 +86,7 @@ const find = ({ table, key = {} }: any): Promise<any> =>
  * @param {Object} [options.key={}] - An object with key-value pairs to use as a filter for the search.
  * @returns {Promise} A promise that resolves with the found document or null if no matching document is found, or rejects with an error if there is an issue with the query?.
  * @example
- * const result = await findOne({ table: 'users', key: { name: 'John' } });
+ * const result = await findOne({ table: User, key: { name: 'John' } });
  */
 const findOne = async ({ table, key = {} }: any): Promise<any> => {
   if (key.id) key._id = key.id;

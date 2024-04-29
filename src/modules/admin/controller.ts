@@ -7,12 +7,17 @@ import { apiResponse, asyncHandler, generateSignature, validateBody } from "../.
 import User from "../user/model";
 import { loginSchema, registerSchema } from "./validation";
 
-// Admin Registration
+/**
+ * Admin Registration
+ * @param {Request} req - The HTTP request object.
+ * @param {Response} res - The HTTP response object.
+ * @returns {Promise<void>} - A promise that resolves when the response is sent.
+ */
 export const adminRegistration = asyncHandler(async (req: Request, res: Response) => {
   const result = validateBody(registerSchema, req.body);
   if (!result) return apiResponse(res, 400, false, "Invalid Request!");
 
-  const existingAdmin = await operations.findOne({ email: req.body.email });
+  const existingAdmin = await operations.findOne({ table: User, key: { email: req.body.email } });
   if (existingAdmin) return apiResponse(res, 400, false, "User already exists!");
 
   req.body.password = await bcrypt.hash(req.body.password, 10);
@@ -39,7 +44,12 @@ export const adminRegistration = asyncHandler(async (req: Request, res: Response
   return apiResponse(res, 200, true, "Admin Registration Successfully!", admin);
 });
 
-// Admin Login
+/**
+ * Admin Login
+ * @param {Request} req - The HTTP request object.
+ * @param {Response} res - The HTTP response object.
+ * @returns {Promise<void>} - A promise that resolves when the response is sent.
+ */
 export const adminLogin = asyncHandler(async (req: Request, res: Response) => {
   const result = validateBody(loginSchema, req.body);
   if (!result) return apiResponse(res, 400, false, "Invalid Request!");
@@ -70,7 +80,12 @@ export const adminLogin = asyncHandler(async (req: Request, res: Response) => {
   return apiResponse(res, 200, true, "Admin Login Successfully!", admin);
 });
 
-// Admin Logout
+/**
+ * Admin Logout
+ * @param {Request} req - The HTTP request object.
+ * @param {Response} res - The HTTP response object.
+ * @returns {Promise<void>} - A promise that resolves when the response is sent.
+ */
 export const adminLogout = asyncHandler(async (_req: Request, res: Response) => {
   res.clearCookie(COOKIE_KEY, {
     httpOnly: true,
