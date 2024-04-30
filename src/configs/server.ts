@@ -30,6 +30,7 @@ app.use(cors(config[env].corsOptions));
 app.use(express.json({ limit: "100kb" }));
 app.use(express.urlencoded({ extended: true, limit: "100kb" }));
 app.use(actuator({ infoGitMode: "full" }));
+app.use(verifyApiKeyHeader);
 app.use(
   rateLimit({
     windowMs: 14 * 16 * 1000,
@@ -46,8 +47,8 @@ app.get("/", (_, res: Response) => {
 });
 
 // Main Routes
-app.use("/api/v1", verifyApiKeyHeader, webRoutes); // web
-app.use("/api/v1/admin", verifyApiKeyHeader, adminRoutes); // admin
+app.use("/api/v1", webRoutes); // web
+app.use("/api/v1/admin", adminRoutes); // admin
 
 // 404 Route
 app.use((_, res: Response, _next: NextFunction) => {

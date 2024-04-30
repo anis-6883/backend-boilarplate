@@ -1,8 +1,8 @@
 import { NextFunction, Response } from "express";
 import { decodeOtpToken } from "helpers";
-import logger from "helpers/logger";
-import User from "modules/user/model";
-import { ApiRequest } from "types";
+import logger from "../helpers/logger";
+import User from "../modules/user/model";
+import { ApiRequest } from "../types";
 
 export default async function verifyOtp(req: ApiRequest, res: Response, next: NextFunction): Promise<any> {
   try {

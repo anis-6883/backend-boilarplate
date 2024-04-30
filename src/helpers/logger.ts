@@ -1,4 +1,5 @@
-import { Logger } from "tslog";
+const Logger = require("tslog").Logger;
+
 import { createStream } from "rotating-file-stream";
 
 const stream = createStream("backend-server.log", {
@@ -13,7 +14,7 @@ const logger = new Logger({
   prettyLogTimeZone: "local",
   minLevel: 0,
   attachedTransports: [
-    (logObj) => {
+    (logObj: any) => {
       stream.write(JSON.stringify(logObj) + "\n");
     },
   ],

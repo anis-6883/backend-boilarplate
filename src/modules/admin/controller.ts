@@ -1,9 +1,9 @@
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
-import { IUser } from "types";
+import { IUser } from "../../types";
 import { COOKIE_KEY, REFRESH_TOKEN_KEY } from "../../configs/constants";
 import operations from "../../controller/operations";
-import { apiResponse, asyncHandler, generateSignature, validateBody } from "../../helpers";
+import { apiResponse, asyncHandler, decodeAuthToken, generateSignature, validateBody } from "../../helpers";
 import User from "../user/model";
 import { loginSchema, registerSchema } from "./validation";
 
@@ -102,4 +102,38 @@ export const adminLogout = asyncHandler(async (_req: Request, res: Response) => 
   });
 
   return apiResponse(res, 200, true, "Admin Logout Successfully!");
+});
+
+/**
+ * Admin Profile
+ * @param {Request} req - The HTTP request object.
+ * @param {Response} res - The HTTP response object.
+ * @returns {Promise<void>} - A promise that resolves when the response is sent.
+ */
+export const adminProfile = asyncHandler(async (req: Request, res: Response) => {
+  if ("user" in req) {
+    if (!req.user) return apiResponse(res, 401, false, "Unauthorized!");
+    return apiResponse(res, 200, true, "Admin Profile", req.user);
+  } else {
+    return apiResponse(res, 401, false, "Unauthorized!");
+  }
+});
+
+export const refreshAccessToken = asyncHandler(async (req: Request, res: Response) => {
+  const token = req?.cookies[REFRESH_TOKEN_KEY] || req?.headers?.authorization?.replace("Bearer", "");
+  if (!token) return apiResponse(res, 401, false, "Unauthorized!");
+
+  const user = await decodeAuthToken(token);
+  if (!user) return apiResponse(res, 401, false, "Unauthorized!");
+
+  const accessToken = generateSignature({ email: user.email, role: user.role }, "1d");
+
+  res.cookie(COOKIE_KEY, accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "development" ? false : true,
+    sameSite: process.env.NODE_ENV === "development" ? "lax" : "none",
+    expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+  });
+
+  return apiResponse(res, 200, true, "Access Token Generated!", user);
 });

@@ -93,9 +93,9 @@ export const generateOtp = function (len: number): string {
 
 export const decodeAuthToken = async (token: string) => {
   try {
-    const decoded: any = jwt.verify(token, process.env.SECRET!);
+    const decoded: any = jwt.verify(token, process.env.APP_SECRET!);
     const user = await User.findOne({ id: decoded?.id });
-    if (!user) throw new Error("User not found");
+    if (!user) throw new Error("User not found!");
     return user;
   } catch (err) {
     logger.error(err);
