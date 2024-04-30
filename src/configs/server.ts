@@ -1,7 +1,6 @@
 import "dotenv/config";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import morgan from "morgan";
 import express, { NextFunction, Response } from "express";
 import helmet from "helmet";
 import logger from "morgan";
@@ -16,6 +15,7 @@ import config from "./config";
 import connectToDatabase from "./database";
 const env = process.env.NODE_ENV || "development";
 
+// Connect to MongoDB with Mongoose
 connectToDatabase(config[env].databaseURI);
 
 const app = express();
@@ -25,7 +25,6 @@ app.use(helmet());
 app.use(logger("dev"));
 app.use(cookieParser());
 app.use(express.static("public"));
-app.use(morgan("common"));
 app.use(parse());
 app.use(cors(config[env].corsOptions));
 app.use(express.json({ limit: "100kb" }));
@@ -40,8 +39,6 @@ app.use(
     message: "You have bombered the api!",
   })
 );
-
-// Connect to MongoDB with Mongoose
 
 // Home Route
 app.get("/", (_, res: Response) => {
