@@ -1,4 +1,4 @@
-import { Config } from "types";
+import { Config } from "../types";
 import { MIME_TYPE } from "./constants";
 
 const config: Config = {

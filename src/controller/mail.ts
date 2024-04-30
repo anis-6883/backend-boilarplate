@@ -1,6 +1,6 @@
 import logger from "../helpers/logger";
 import nodemailer, { SentMessageInfo } from "nodemailer";
-import { MailOptions, SMTPConfig } from "types";
+import { MailOptions, SMTPConfig } from "../types";
 
 export default class MailService {
   private static instance: MailService;

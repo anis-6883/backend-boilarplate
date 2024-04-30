@@ -1,10 +1,9 @@
 import express from "express";
 import userAuthRoutes from "../modules/user/route";
-import { fileUp } from "../controller/fileUp";
+import { authCheck } from "../modules/user/controller";
 const router = express.Router();
 
+router.get("/auth-check", authCheck);
 router.use("/users", userAuthRoutes);
-
-fileUp;
 
 export default router;
