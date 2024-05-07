@@ -12,6 +12,7 @@ import S3Utils from "./controller/bucket";
 import SearchCtrl from "./controller/search/search";
 import RedisUtils from "./controller/redis";
 import ServiceLocator from "./controller/serviceLocator";
+import gracefulShutdown from "./controller/gracefullShutdown";
 
 (async () => {
   try {
@@ -48,11 +49,14 @@ import ServiceLocator from "./controller/serviceLocator";
     ServiceLocator.registerService("aws", aws);
     ServiceLocator.registerService("redis", redis);
     ServiceLocator.registerService("socket", socket.getSocket);
+    // ServiceLocator.registerService("search", search);
     // services.forEach((service) => ServiceLocator.registerService(service));
 
     server.listen(PORT, () => {
       logger.info(`=> Server listening on port ${PORT}`);
     });
+
+    gracefulShutdown();
   } catch (error: any) {
     logger.error("Error starting the server:", error.message);
   }

@@ -137,3 +137,6 @@ out
 
 # cache
 .cache
+
+# packages files
+package-lock.json

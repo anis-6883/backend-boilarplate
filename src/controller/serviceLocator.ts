@@ -4,7 +4,7 @@ export default class ServiceLocator {
   private static services = new Map<string, any>();
 
   static registerService(name: string, service: any) {
-    logger.info(`=> ${name.charAt(0).toUpperCase() + name.slice(1)} registered`);
+    logger.info(`=> ${name.charAt(0).toUpperCase() + name.slice(1)} Registered`);
     this.services.set(name, service);
   }
 
