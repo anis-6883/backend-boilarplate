@@ -1,5 +1,5 @@
-const { create, insert, remove, search: oSearch } = require("@orama/orama");
-const { persistToFile, restoreFromFile } = require("@orama/plugin-data-persistence");
+import { create, insert, remove, search as oSearch } from "@orama/orama";
+import { persistToFile, restoreFromFile } from "@orama/plugin-data-persistence";
 import path from "path";
 import { existsSync, mkdirSync } from "fs";
 import { schemas } from "./schemas";
@@ -25,6 +25,7 @@ export default class SearchCtrl {
 
   async restore(path: string): Promise<boolean | any> {
     try {
+      console.log(restoreFromFile);
       return await restoreFromFile("binary", path);
     } catch (_err) {
       return false;
