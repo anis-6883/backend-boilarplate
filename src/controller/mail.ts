@@ -32,7 +32,7 @@ export default class MailService {
       host: process.env.SMTP_HOST!,
       port: parseInt(process.env.SMTP_PORT!),
       // cause of secure connection of server unable to use the secure connection
-      // secure: process.env.SMTP_TLS === "yes" ? true : false,
+      secure: process.env.SMTP_TLS === "yes" ? true : false,
       auth: {
         user: process.env.SMTP_USER!,
         pass: process.env.SMTP_PASSWORD!,
