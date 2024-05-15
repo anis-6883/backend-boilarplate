@@ -56,7 +56,9 @@ import gracefulShutdown from "./controller/gracefullShutdown";
       logger.info(`=> Server listening on port ${PORT}`);
     });
 
-    gracefulShutdown();
+    // temporarily disable cause of creating multiple instances of server
+
+    // gracefulShutdown();
   } catch (error: any) {
     logger.error("Error starting the server:", error.message);
   }

@@ -31,7 +31,8 @@ export default class MailService {
     const smtpOptions: SMTPConfig = {
       host: process.env.SMTP_HOST!,
       port: parseInt(process.env.SMTP_PORT!),
-      secure: process.env.SMTP_TLS === "yes" ? true : false,
+      // cause of secure connection of server unable to use the secure connection
+      // secure: process.env.SMTP_TLS === "yes" ? true : false,
       auth: {
         user: process.env.SMTP_USER!,
         pass: process.env.SMTP_PASSWORD!,

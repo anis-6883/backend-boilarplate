@@ -12,8 +12,9 @@ export default function gracefulShutdown(): void {
     process.on(e, async (orgErr) => {
       try {
         console.log(orgErr);
-        const searchCtrl = ServiceLocator.getService("search");
-        searchCtrl.saveData().catch((er: any) => console.log(er));
+        // temporarily disable for search controller issue.
+        // const searchCtrl = ServiceLocator.getService("search");
+        // searchCtrl.saveData().catch((er: any) => console.log(er));
       } catch (err) {
         console.log(err);
         return process.exit();

@@ -71,7 +71,7 @@ export interface DecodedUser {
 export interface SMTPConfig {
   host: string;
   port: number;
-  secure: boolean;
+  secure?: boolean;
   auth: {
     user: string;
     pass: string;
@@ -85,7 +85,7 @@ export interface MailOptions {
   bcc?: string | string[];
   subject: string;
   text?: string;
-  html: string;
+  html?: string;
 }
 
 export interface S3BucketOptions {
