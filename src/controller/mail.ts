@@ -56,7 +56,7 @@ export default class MailService {
         text: options.text,
         html: options.html,
       });
-      logger.info(`${requestId} - [MailResponse]=${res.response} [MessageId=${res.messageId}]`);
+      logger.info(`[Request ID]=${requestId} - [MailResponse]=${res.response} [MessageId=${res.messageId}]`);
       if (cb) cb(null, res);
       else return res;
     } catch (err: any) {
