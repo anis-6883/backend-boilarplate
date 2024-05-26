@@ -1,8 +1,11 @@
+import { config as envConfig } from "dotenv";
+envConfig();
 import { readFileSync } from "fs";
 import app from "./configs/server";
 import http from "http";
 import http2 from "https";
 import path from "path";
+import { instrument } from "@socket.io/admin-ui";
 import logger from "./helpers/logger";
 import SocketManager from "./controller/socket";
 import config from "./configs/config";
@@ -54,6 +57,16 @@ import gracefulShutdown from "./controller/gracefullShutdown";
 
     server.listen(PORT, () => {
       logger.info(`=> Server listening on port ${PORT}`);
+    });
+
+    instrument(socket.getSocket, {
+      namespaceName: "/rootdevs",
+      mode: "development",
+      auth: {
+        type: "basic",
+        username: process.env.SOCKET_USER_NAME!,
+        password: process.env.PASSWORD!,
+      },
     });
 
     // temporarily disable cause of creating multiple instances of server
